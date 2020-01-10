@@ -1,0 +1,32 @@
+<html>
+
+<head>
+  <title>Todo app</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+  <h1>Todo App</h1>
+  <hr>
+  <h2>회원가입</h2>
+  <form action="/signup" method="POST">
+    <label for="email"> Email </label>
+    <input id="email" name='email' type="email" placeholder="email 를 입력해주세요" required>
+    <br>
+    <label for="username"> ID </label>
+    <input id="username" name='username' type="text" placeholder="ID 를 입력해주세요" required>
+    <br>
+    <label for="pw"> PW </label>
+    <input id="pw" name="pw" type="password" placeholder="Password 를 입력해주세요" required>
+    <br>
+    <button type="submit">회원가입</button>
+  </form>
+  <button onclick="goBack()">뒤로가기</button>
+</body>
+<script>
+  function goBack(){
+    window.history.back()
+  }
+</script>
+
+</html>
