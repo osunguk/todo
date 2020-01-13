@@ -1,11 +1,12 @@
 const express = require('express');
 const path = require('path')
 const app = express();
+const session = require('express-session')
 const mysql = require('mysql')
 
 // 추가
 const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({extended: true}))
 
 // db 연결
 // dbConfig.js 는 gitignore 추가 
@@ -18,18 +19,6 @@ const connection = mysql.createConnection({
   port : dbConfig.port,
   database : dbConfig.database,
 })
-
-// connection.connect();
-
-// connection.query('select * from user;', (err, rows, fieds) =>{
-//   if(!err){
-//     console.log('the solution is : ', rows)
-//   }    
-//   else{
-//     console.log('error : ',err)
-//   }
-// })
-// connection.end();
 
 // port 설정
 const PORT = process.env.PORT || 3000
@@ -48,3 +37,4 @@ app.use(express.static('public'))
 const server = app.listen(PORT, function () {
   console.log("server start!! port : " + PORT)
 })
+

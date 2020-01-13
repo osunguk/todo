@@ -17,3 +17,11 @@ function remove_list() {
     list.removeChild(list.firstChild)
   }
 }
+
+function logout() {
+  window.location.href = "/logout"
+}
+
+function signout() {
+  window.location.href = "/signout"
+}

@@ -1,0 +1,29 @@
+<html>
+
+<head>
+  <title>Todo app</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+  <h1>Todo App</h1>
+  <hr>
+  <h2>회원탈퇴</h2>
+  <% if (msg) { %>
+     <p><%= msg %></p>
+  <% } %>
+  <form action="/signout" method="POST">
+    <label for="pw"> PW 를 입력해주세요</label>
+    <input id="pw" name="pw" type="password" placeholder="Password 를 입력해주세요" required>
+    <br>
+    <button type="submit">회원탈퇴</button>
+  </form>
+  <button onclick="goBack()">뒤로가기</button>
+</body>
+<script>
+  function goBack(){
+    window.history.back()
+  }
+</script>
+
+</html>

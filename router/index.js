@@ -1,6 +1,10 @@
 const crypto = require('crypto')
 const mysql = require('mysql')
 const dbConfig = require('../dbConfig')
+const session = require('express-session')
+
+
+
 const connection = mysql.createConnection({
   host: dbConfig.host,
   user: dbConfig.user,
@@ -10,12 +14,28 @@ const connection = mysql.createConnection({
 })
 
 module.exports = function (app) {
+  app.use(session({
+    secret: '1q2w3e4r',
+    resave: false,
+    saveUninitialized: true
+  }));
+
   app.get('/', (req, res) => {
+    sess = req.session
+    sess.username = ""
+    sess.uid = null
     res.render('main')
   })
 
   app.get('/login', (req, res) => {
-    res.render('login',{msg:""})
+    if (req.session.username) {
+      console.log(req.session.username)
+      res.redirect('todo')
+    }
+    else {
+      res.render('login', { msg: "" })
+    }
+
   })
 
   app.post('/login', (req, res) => {
@@ -28,6 +48,8 @@ module.exports = function (app) {
       if (rows[0]) {
         if (pw === rows[0].password) {
           // console.log('로그인 성공')
+          req.session.username = username
+          req.session.uid = rows[0].uid
           tmp = rows[0].uid
           t = new Date()
           n = t.toISOString().slice(0, 19).replace('T', ' ')
@@ -46,7 +68,7 @@ module.exports = function (app) {
   })
 
   app.get('/signup', (req, res) => {
-    res.render('signup')
+    res.render('signup', { msg: "" })
   })
 
   app.post('/signup', (req, res) => {
@@ -57,12 +79,55 @@ module.exports = function (app) {
     const sql = `INSERT INTO user (username, password, email) VALUES ('${username}', '${pw}', '${email}')`;
 
     connection.query(sql, (err, result) => {
-      if (err) throw err;
+      if (err) {
+        res.render('signup', { msg: '이미 존재하는 ID 입니다' })
+      }
+      else {
+        res.render('login', { msg: "" })
+
+      }
     })
-    res.render('login')
   })
 
   app.get('/todo', (req, res) => {
-    res.render('todo')
+    res.render('todo', { username: req.session.username })
+  })
+
+  app.get('/logout', (req, res) => {
+    sess = req.session
+    if (sess.username) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.log(err)
+        } else res.redirect('/')
+      })
+    } else {
+      res.redirect('/')
+    }
+  })
+
+  app.get('/signout', (req, res) => {
+    res.render('signout', { msg: "" })
+  })
+
+  app.post('/signout', (req, res) => {
+    const pw = req.body.pw
+
+    sql = "SELECT password FROM user WHERE uid=?"
+
+    connection.query(sql, [req.session.uid], (err, rows, result) => {
+      if (err) throw err;
+      if (pw === rows[0].password) {
+        sql = "DELETE FROM user WHERE uid=?"
+        connection.query(sql, [req.session.uid], (err, result) => {
+          if (err) throw err;
+        })
+        req.session.destroy()
+        res.render('main')
+      }
+      else {
+        res.render('signout', { msg: "비밀번호를 확인해주세요" })
+      }
+    })
   })
 }
