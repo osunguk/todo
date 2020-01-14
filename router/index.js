@@ -46,7 +46,7 @@ module.exports = function (app) {
         console.log('error : ', err)
       }
       if (rows[0]) {
-        crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFuc, (err, key) => {
+        crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFunc, (err, key) => {
           pw = key.toString('base64')
 
           if (pw === rows[0].password) {
@@ -79,7 +79,7 @@ module.exports = function (app) {
   app.post('/signup', (req, res) => {
     const username = req.body.username
     crypto.randomBytes(64, (err, buf) => {
-      crypto.pbkdf2(req.body.pw, buf.toString('base64'), hashConfig.counter, 64, hashConfig.hashFuc, (err, key) => {
+      crypto.pbkdf2(req.body.pw, buf.toString('base64'), hashConfig.counter, 64, hashConfig.hashFunc, (err, key) => {
         const pw = key.toString('base64')
         const salt = buf.toString('base64')
 
@@ -130,7 +130,7 @@ module.exports = function (app) {
 
     connection.query(sql, [req.session.uid], (err, rows, result) => {
       if (err) throw err;
-      crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFuc, (err, key) => {
+      crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFunc, (err, key) => {
         pw = key.toString('base64')
         if (pw === rows[0].password) {
           sql = "DELETE FROM user WHERE uid=?"
