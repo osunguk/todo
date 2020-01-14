@@ -3,7 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=node,visualstudiocode
 
 # add
-dbConfig.js
+config/
 
 ### Node ###
 # Logs
