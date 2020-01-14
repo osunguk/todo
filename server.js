@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 // db 연결
 // dbConfig.js 는 gitignore 추가 
 // db 연결 data 숨김
-const dbConfig = require('./dbConfig')
+const dbConfig = require('./config/dbConfig')
 const connection = mysql.createConnection({
   host : dbConfig.host,
   user : dbConfig.user,
