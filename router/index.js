@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 const mysql = require('mysql')
-const dbConfig = require('../dbConfig')
+const dbConfig = require('../config/dbConfig')
+const hashConfig = require('../config/hashConfig')
 const session = require('express-session')
 
 
@@ -29,7 +30,6 @@ module.exports = function (app) {
 
   app.get('/login', (req, res) => {
     if (req.session.username) {
-      console.log(req.session.username)
       res.redirect('todo')
     }
     else {
@@ -40,25 +40,30 @@ module.exports = function (app) {
 
   app.post('/login', (req, res) => {
     const username = req.body.username
-    const pw = req.body.pw
+    let pw = req.body.pw
     connection.query('select * from user where username=?;', [username], (err, rows, fieds) => {
       if (err) {
         console.log('error : ', err)
       }
       if (rows[0]) {
-        if (pw === rows[0].password) {
-          // console.log('로그인 성공')
-          req.session.username = username
-          req.session.uid = rows[0].uid
-          tmp = rows[0].uid
-          t = new Date()
-          n = t.toISOString().slice(0, 19).replace('T', ' ')
-          connection.query(`UPDATE user set date_joined=\'${n}\' WHERE uid=${tmp}`)
-          res.redirect('todo')
-        }
-        else {
-          res.render('login', { msg: '비밀번호를 확인하세요' })
-        }
+        crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFuc, (err, key) => {
+          pw = key.toString('base64')
+
+          if (pw === rows[0].password) {
+            // console.log('로그인 성공')
+            req.session.username = username
+            req.session.uid = rows[0].uid
+            uid = rows[0].uid
+            t = new Date()
+            n = t.toISOString().slice(0, 19).replace('T', ' ')
+            connection.query(`UPDATE user set date_joined=\'${n}\' WHERE uid=${uid}`)
+            res.redirect('todo')
+          }
+          else {
+            res.render('login', { msg: '비밀번호를 확인하세요' })
+          }
+        })
+
       }
       else {
         res.render('login', { msg: '존재하지 않는 ID 입니다' })
@@ -73,20 +78,28 @@ module.exports = function (app) {
 
   app.post('/signup', (req, res) => {
     const username = req.body.username
-    const pw = req.body.pw
-    const email = req.body.email
+    crypto.randomBytes(64, (err, buf) => {
+      crypto.pbkdf2(req.body.pw, buf.toString('base64'), hashConfig.counter, 64, hashConfig.hashFuc, (err, key) => {
+        const pw = key.toString('base64')
+        const salt = buf.toString('base64')
 
-    const sql = `INSERT INTO user (username, password, email) VALUES ('${username}', '${pw}', '${email}')`;
+        const email = req.body.email
 
-    connection.query(sql, (err, result) => {
-      if (err) {
-        res.render('signup', { msg: '이미 존재하는 ID 입니다' })
-      }
-      else {
-        res.render('login', { msg: "" })
+        const sql = `INSERT INTO user (username, password, salt, email) VALUES ('${username}', '${pw}', '${salt}', '${email}')`;
 
-      }
+        connection.query(sql, (err, result) => {
+          if (err) {
+            res.render('signup', { msg: '이미 존재하는 ID 입니다' })
+          }
+          else {
+            res.render('login', { msg: "" })
+          }
+        })
+      })
     })
+    // const pw = crypto.createHash('sha512').update(req.body.pw).digest('base64') 일반적인 암호화
+    // 레인보우 테이블 공격에 취약할 수 있다
+
   })
 
   app.get('/todo', (req, res) => {
@@ -111,23 +124,26 @@ module.exports = function (app) {
   })
 
   app.post('/signout', (req, res) => {
-    const pw = req.body.pw
+    let pw = req.body.pw
 
-    sql = "SELECT password FROM user WHERE uid=?"
+    sql = "SELECT * FROM user WHERE uid=?"
 
     connection.query(sql, [req.session.uid], (err, rows, result) => {
       if (err) throw err;
-      if (pw === rows[0].password) {
-        sql = "DELETE FROM user WHERE uid=?"
-        connection.query(sql, [req.session.uid], (err, result) => {
-          if (err) throw err;
-        })
-        req.session.destroy()
-        res.render('main')
-      }
-      else {
-        res.render('signout', { msg: "비밀번호를 확인해주세요" })
-      }
+      crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFuc, (err, key) => {
+        pw = key.toString('base64')
+        if (pw === rows[0].password) {
+          sql = "DELETE FROM user WHERE uid=?"
+          connection.query(sql, [req.session.uid], (err, result) => {
+            if (err) throw err;
+          })
+          req.session.destroy()
+          res.render('main')
+        }
+        else {
+          res.render('signout', { msg: "비밀번호를 확인해주세요" })
+        }
+      })
     })
   })
 }
