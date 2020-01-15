@@ -24,7 +24,7 @@ module.exports = function (app) {
   app.get('/', (req, res) => {
     sess = req.session
     sess.username = ""
-    sess.uid = null
+    sess.id = null
     res.render('main')
   })
 
@@ -41,7 +41,7 @@ module.exports = function (app) {
   app.post('/login', (req, res) => {
     const username = req.body.username
     let pw = req.body.pw
-    connection.query('select * from user where username=?;', [username], (err, rows, fieds) => {
+    connection.query('select * from users where username=?;', [username], (err, rows, fieds) => {
       if (err) {
         console.log('error : ', err)
       }
@@ -52,11 +52,11 @@ module.exports = function (app) {
           if (pw === rows[0].password) {
             // console.log('로그인 성공')
             req.session.username = username
-            req.session.uid = rows[0].uid
-            uid = rows[0].uid
+            req.session.userid = rows[0].id
+            id = rows[0].id
             t = new Date()
             n = t.toISOString().slice(0, 19).replace('T', ' ')
-            connection.query(`UPDATE user set date_joined=\'${n}\' WHERE uid=${uid}`)
+            connection.query(`UPDATE users set updatedAt=\'${n}\' WHERE id=${id}`)
             res.redirect('todo')
           }
           else {
@@ -84,8 +84,9 @@ module.exports = function (app) {
         const salt = buf.toString('base64')
 
         const email = req.body.email
-
-        const sql = `INSERT INTO user (username, password, salt, email) VALUES ('${username}', '${pw}', '${salt}', '${email}')`;
+        t = new Date()
+        n = t.toISOString().slice(0, 19).replace('T', ' ')
+        const sql = `INSERT INTO users (username, password, salt, email, createdAt) VALUES ('${username}', '${pw}', '${salt}', '${email}','${n}')`;
 
         connection.query(sql, (err, result) => {
           if (err) {
@@ -126,15 +127,14 @@ module.exports = function (app) {
   app.post('/signout', (req, res) => {
     let pw = req.body.pw
 
-    sql = "SELECT * FROM user WHERE uid=?"
-
-    connection.query(sql, [req.session.uid], (err, rows, result) => {
+    sql = "SELECT * FROM users WHERE id=?"
+    connection.query(sql, [req.session.userid], (err, rows, result) => {
       if (err) throw err;
       crypto.pbkdf2(pw, rows[0].salt, hashConfig.counter, 64, hashConfig.hashFunc, (err, key) => {
         pw = key.toString('base64')
         if (pw === rows[0].password) {
-          sql = "DELETE FROM user WHERE uid=?"
-          connection.query(sql, [req.session.uid], (err, result) => {
+          sql = "DELETE FROM users WHERE id=?"
+          connection.query(sql, [req.session.userid], (err, result) => {
             if (err) throw err;
           })
           req.session.destroy()

@@ -3,10 +3,14 @@ const path = require('path')
 const app = express();
 const session = require('express-session')
 const mysql = require('mysql')
+const Sequelize = require('sequelize')
+
 
 // 추가
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}))
+
+
 
 // db 연결
 // dbConfig.js 는 gitignore 추가 
