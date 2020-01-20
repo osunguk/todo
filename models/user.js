@@ -4,12 +4,14 @@ module.exports = (sequelize, DataTypes) => {
     username: DataTypes.STRING,
     password: DataTypes.STRING,
     salt: DataTypes.STRING,
-    email: DataTypes.STRING
+    email: DataTypes.STRING,
+    tid: DataTypes.INTEGER
   }, {});
   user.associate = function(models) {
     // associations can be defined here
-    user.belongsTo(models.todoTable, {
-      foreignKey: 'id'
+    user.hasOne(models.todoTable, {
+      foreignKey: 'tid',
+      ad: 'tableId'
     })
   };
   return user;
