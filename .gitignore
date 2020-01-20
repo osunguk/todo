@@ -4,6 +4,7 @@
 
 # add
 config/
+.idea/
 
 ### Node ###
 # Logs
