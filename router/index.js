@@ -86,10 +86,11 @@ module.exports = function (app) {
         const email = req.body.email
         t = new Date()
         n = t.toISOString().slice(0, 19).replace('T', ' ')
-        const sql = `INSERT INTO users (username, password, salt, email, createdAt) VALUES ('${username}', '${pw}', '${salt}', '${email}','${n}')`;
+        const sql = `INSERT INTO users (username, password, salt, email, createdAt, updatedAt) VALUES ('${username}', '${pw}', '${salt}', '${email}','${n}', '${n}')`;
 
         connection.query(sql, (err, result) => {
           if (err) {
+            console.log(err)
             res.render('signup', { msg: '이미 존재하는 ID 입니다' })
           }
           else {

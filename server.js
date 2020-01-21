@@ -23,7 +23,6 @@ const connection = mysql.createConnection({
   port : dbConfig.port,
   database : dbConfig.database,
 })
-console.log(dbConfig)
 connection.connect()
 
 // port 설정
