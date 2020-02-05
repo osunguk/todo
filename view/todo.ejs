@@ -6,24 +6,41 @@
 </head>
 
 <body>
-  <h1>Todo App </h1>
-  <span><p><%= username %> 님 안녕하세요</p> <button onclick="logout()">로그아웃</button><button onclick="signout()">회원탈퇴</button></span>
-  <hr>
-  <h3>할 일 추가하기</h3>
-  <div class='form-group'>
-    <input type="text" class="form-control" id='new_todo' placeholder="새로운 할 일" onkeydown="get_list()">
+  <div class="header">
+    <div class="header-title">
+      <h1>Todo App </h1>
+    </div>
+    <div class="info">
+      <%= username %> 님 안녕하세요
+    </div>
   </div>
-  <!-- <button type="button">추가</button> -->
-
-  <hr>
-  <h3>할 일 목록</h3>
-  <div class='todo-list' id='todo-list'>
-
-
+  <div class="nav">
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Profile</a></li>
+      <li><button onclick="logout()">로그아웃</button></li>
+      <li><button onclick="signout()">회원탈퇴</button></li>
+    </ul>
   </div>
-  <br>
-
-  <button type="button" onclick="remove_list()">목록 지우기</button>
+  <div class="main">
+    <div class="leftBar">
+      <div class="doInput">
+        <h3>할 일 추가하기</h3>
+        <div class='form-group'>
+          <input type="text" class="form-control" id='new_todo' placeholder="새로운 할 일" onkeydown="get_list()">
+        </div>
+      </div>
+    </div>
+    <!-- <button type="button">추가</button> -->
+    <div class="mainContent">
+      <div class="todoList">
+        <h3>할 일 목록</h3>
+        <div class='todo-list' id='todo-list'>
+        </div>
+        <button type="button" onclick="remove_list()">목록 지우기</button>
+      </div>
+    </div>
+  </div>
 </body>
 <script src="javascript/todo.js"></script>
 
