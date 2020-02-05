@@ -83,3 +83,14 @@ body{
   text-align: justify;
   border: 1px black;
 } */
+
+table {
+  width: 700px;
+  text-align: center;
+  border: 1px solid;
+  
+}
+
+th {
+  border-bottom: 1px solid;
+}
